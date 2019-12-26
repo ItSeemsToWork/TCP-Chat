@@ -45,9 +45,24 @@ public class TCPServer {
                 while(true) {
                     String clientMessage = in.readLine();
                     System.out.println("log: " + name + ": " + clientMessage);
-                    for (ClientThread ct : TCPServer.clientsList) {
-                        ct.out.write(name+": "+clientMessage + "\n");
-                        ct.out.flush();
+                    String[] parsMessage = clientMessage.split(" ");
+                    
+                    if(parsMessage[0].equals("@senduser")) {
+                    	for (ClientThread ct : TCPServer.clientsList) {
+                    		if(parsMessage[1].equals(ct.name)) {
+                    			ct.out.write(name+ " [private]:");
+                    			for (int i = 2; i < parsMessage.length; i++) {
+                    				ct.out.write(" " +parsMessage[i]);
+                    		      }
+                    			ct.out.write("\n");
+                                ct.out.flush();
+                    		}
+                        }
+                    }else {
+                        for (ClientThread ct : TCPServer.clientsList) {
+                            ct.out.write(name+ ": " + clientMessage + "\n");
+                            ct.out.flush();
+                        }
                     }
                 }
             }
